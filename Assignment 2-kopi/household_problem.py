@@ -4,7 +4,7 @@ import numba as nb
 from consav.linear_interp import interp_1d_vec
 
 @nb.njit
-def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u,S,chi):
+def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u,S):
     """ solve backwards with vbeg_a_plus from previous iteration """
 
     for i_fix in range(par.Nfix):
@@ -22,7 +22,7 @@ def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u,S,chi
             l_endo = ell_endo*z
 
             # iii. re-interpolate
-            m_endo = c_endo + par.a_grid - wt*l_endo - chi
+            m_endo = c_endo + par.a_grid - wt*l_endo
             m_exo = (1+r)*par.a_grid
 
             interp_1d_vec(m_endo,c_endo,m_exo,c[i_fix,i_z,:])
@@ -30,7 +30,7 @@ def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u,S,chi
             l[i_fix,i_z,:] = ell[i_fix,i_z,:]*z
 
             # iv. saving
-            a[i_fix,i_z,:] = m_exo + wt*l[i_fix,i_z,:] - c[i_fix,i_z,:] + chi
+            a[i_fix,i_z,:] = m_exo + wt*l[i_fix,i_z,:] - c[i_fix,i_z,:]
 
             # v. refinement at constraint
             for i_a in range(par.Na):
@@ -46,7 +46,7 @@ def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u,S,chi
                     it = 0
                     while True:
 
-                        ci = (1+r)*par.a_grid[i_a] + wt*elli*z + chi
+                        ci = (1+r)*par.a_grid[i_a] + wt*elli*z
 
                         error = elli - fac*ci**(-par.sigma/par.nu)
                         if np.abs(error) < par.tol_ell:
@@ -67,7 +67,7 @@ def solve_hh_backwards(par,z_trans,wt,r,vbeg_a_plus,vbeg_a,a,c,ell,l,inc,u,S,chi
 
                     break
 
-        inc[i_fix] = wt*l[i_fix] + r*par.a_grid + chi
+        inc[i_fix] = wt*l[i_fix] + r*par.a_grid
         #u[i_fix,:,:] = c[i_fix]**(1-par.sigma)/(1-par.sigma) - par.varphi*ell[i_fix]**(1+par.nu)/(1+par.nu)
         u[i_fix,:,:] = c[i_fix]**(1-par.sigma)/(1-par.sigma) + ((S + par.S_)**(1-par.omega))/(1-par.omega) - par.varphi*ell[i_fix]**(1+par.nu)/(1+par.nu)
 

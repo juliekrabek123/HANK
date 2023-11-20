@@ -15,7 +15,6 @@ def production_firm(par,ini,ss,K,L_Y,rK,w,Y):
 
     # a. implied prices (remember K and L are inputs)
     rK[:] = par.alpha*par.Gamma_Y*(K_lag/L_Y)**(par.alpha-1.0)
-
     w[:] = (1.0-par.alpha)*par.Gamma_Y*(K_lag/L_Y)**par.alpha
     
     # b. production and investment
@@ -31,23 +30,19 @@ def mutual_fund(par,ini,ss,K,rK,A,r):
     r[:] = rK-par.delta
 
 @nb.njit
-def government(par,ini,ss,B,tau,w,wt,S,G,L_G,Gamma_G,chi):
+def government(par,ini,ss,B,tau,w,wt,L_hh,L_G,G,S):
 
     tau[:] = ss.tau
     B[:] = ss.B
     wt[:] = (1-tau)*w
-    S[:] = np.min([G[:], Gamma_G*L_G])
-
-    # b. Transfer
-    chi[:] = ss.chi
+    S[:] = ss.S
 
 
 @nb.njit
-def market_clearing(par,ini,ss,A,A_hh,L_G,L_Y,L_hh,Y,C_hh,K,I,G,tau,w,chi,clearing_A,clearing_L,clearing_Y,clearing_G):
+def market_clearing(par,ini,ss,A,A_hh,L_G,L_Y,L_hh,Y,C_hh,K,I,G,tau,w,clearing_A,clearing_L,clearing_Y,clearing_G):
 
-    clearing_A[:] = A - A_hh
-    #L[:] = L_hh
-    clearing_L[:] = L_hh - (L_Y + L_G) 
+    clearing_A[:] = A-A_hh
+    clearing_L[:] = (L_Y + L_G) - L_hh
     I[:] = K - (1-par.delta) * lag(ini.K,K)
-    clearing_Y[:] = Y - C_hh - I - G
-    clearing_G[:] = (G + w*L_G + chi) - (tau * w * L_hh)
+    clearing_Y[:] = Y-C_hh-I-G
+    clearing_G[:] = (G + w*L_G + par.chi) - tau*w*L_hh

@@ -17,15 +17,15 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
         # b. household
         self.grids_hh = ['a'] # grids
         self.pols_hh = ['a'] # policy functions
-        self.inputs_hh = ['r','wt','S','chi'] # direct inputs
+        self.inputs_hh = ['r','wt','S'] # direct inputs
         self.inputs_hh_z = [] # transition matrix inputs (not used today)
         self.outputs_hh = ['a','c','ell','l','inc','u'] # outputs
         self.intertemps_hh = ['vbeg_a'] # intertemporal variables
 
         # c. GE
-        self.shocks = ['G','L_G','Gamma_G'] # exogenous shocks
+        self.shocks = ['G','L_G'] # exogenous shocks
         self.unknowns = ['K','L_Y'] # endogenous unknowns
-        self.targets = ['clearing_A','clearing_G'] # targets = 0
+        self.targets = ['clearing_A','clearing_L','clearing_G'] # targets = 0
         self.blocks = [ # list of strings to block-functions
             'blocks.production_firm',
             'blocks.mutual_fund',
@@ -58,7 +58,7 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
 
         # c. production and investment
         par.Gamma_Y = 1.0 # technology level
-        par.Gamma_G_ss = 1.0 # government technology level
+        par.Gamma_G = 1.0 # government technology level
         par.alpha = 0.30 # cobb-douglas coefficient
         par.delta = 0.10 # depreciation rate
 
@@ -68,8 +68,8 @@ class HANCWelfareModelClass(EconModelClass,GEModelClass):
 
         # e. government
         par.tau_ss = 0.00 # tax rate on wage income
-        par.chi_ss = 0.0 # lump-sum transfer
-        par.G_ss = 0.4
+        par.chi = 0.0 # lump-sum transfer
+        par.G_ss = 0.2
         par.L_G_ss = par.G_ss 
 
         # e. misc.
